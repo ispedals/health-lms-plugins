@@ -18,14 +18,20 @@ class filter_viewerjs_media extends core_media_player {
 		//we assume the lib/viewerjs directory will be two directories away from the intital public directory
 		$viewerjs_player_url->set_anchor('../..' . $file_url->out_as_local_url());
 
-		//TODO don't hardcode dimensions
-		$output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' => 300, 'height' => 300));
+        if(!$width){
+            $width = 800;
+        }
+        if(!$height){
+            $height = 600;
+        }
+        
+		$output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' =>  $width, 'height' =>  $height, 'webkitallowfullscreen' => 'webkitallowfullscreen', 'mozallowfullscreen' => 'mozallowfullscreen', 'allowfullscreen' => 'allowfullscreen' ));
 
 		return $output;
 	}
 
 	 public function get_supported_extensions() {
-		return array('pdf');
+		return array('pdf', 'ods', 'odp', 'odt');
 	}
 
 	 public function get_rank() {
