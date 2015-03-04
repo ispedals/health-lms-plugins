@@ -33,13 +33,13 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 
-class report_tincan {
+class report_tincan_observer {
 	public static function tincan_quiz_attempt_started($event){
 		global $CFG, $DB;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
-		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));
-		$cm      = get_coursemodule_from_id('quiz', $event->cmid, $event->courseid);
-		$attempt = $DB->get_record('quiz_attempts', array('id' => $event->attemptid));
+		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
+		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 		$registrationUID = self::createTincanUID($attempt->id);
 		$statementUID = self::tincanrpt_gen_uuid();
 		$parentid = $CFG->wwwroot . '/mod/course/view.php?id=' . $course->id;
@@ -83,14 +83,14 @@ class report_tincan {
 	public static function tincan_quiz_attempt_submitted($event){
 		global $CFG, $DB, $USER;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
-		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));
-		$cm      = get_coursemodule_from_id('quiz', $event->cmid, $event->courseid);
-		$attempt = $DB->get_record('quiz_attempts', array('id' => $event->attemptid));
+		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
+		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 
 		$statementUID = self::tincanrpt_gen_uuid();
 		$registrationUID = self::findTincanUID($attempt->id);
 
-		$parentid = $CFG->wwwroot."/course/view.php?id=" . $event->quizid;
+		$parentid = $CFG->wwwroot."/course/view.php?id=" . $attempt->quiz;
 		$parentObjType = "Activity";
 
 		// ###### this looks to be standard
@@ -138,7 +138,7 @@ class report_tincan {
 	public static function tincan_quiz_attempt_submitted_child($event,$questionid,$quiz,$attempt,$questionsattempt, $registrationUID){
 		global $CFG, $DB, $USER;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
-		$cm      = get_coursemodule_from_id('quiz', $event->cmid, $event->courseid);
+		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 
 		$interactionType = "choice";
 		$answers_array = $DB->get_records('question_answers', array('question' => $questionsattempt->questionid));
@@ -283,11 +283,11 @@ class report_tincan {
 	public static function tincan_quiz_attempt_passing($event,$registrationUID){
 		global $CFG, $DB, $USER;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
-		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));
-		$cm      = get_coursemodule_from_id('quiz', $event->cmid, $event->courseid);
-		$attempt = $DB->get_record('quiz_attempts', array('id' => $event->attemptid));
+		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
+		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 
-		$parentid = $CFG->wwwroot."/course/view.php?id=" . $event->quizid;
+		$parentid = $CFG->wwwroot."/course/view.php?id=" . $attempt->quiz;
 		$parentObjType = "Activity";
 
 		$statementUID = self::tincanrpt_gen_uuid();
@@ -327,9 +327,9 @@ class report_tincan {
 	public static function tincan_quiz_attempt_failure($event,$registrationUID){
 		global $CFG, $DB, $USER;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
-		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));
-		$cm      = get_coursemodule_from_id('quiz', $event->cmid, $event->courseid);
-		$attempt = $DB->get_record('quiz_attempts', array('id' => $event->attemptid));
+		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
+		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 
 		$parentid = $CFG->wwwroot."/course/view.php?id=" . $course->id;
 		$parentObjType = "Activity";
@@ -463,9 +463,9 @@ class report_tincan {
 		global $CFG, $DB, $USER;
 		// Using the list of qustions from the quiz
 		// get a list of the questions from moodle
-		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));
+		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
 		$statementsection =  array();
-		$attempt = $DB->get_record('quiz_attempts', array('id' => $event->attemptid));
 		$questionsattempts = $DB->get_records('question_attempts',array('questionusageid'=>$attempt->uniqueid));
 
 		foreach($questionsattempts as $questionsattempt){
