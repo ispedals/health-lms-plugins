@@ -40,39 +40,23 @@ class report_tincan_observer {
 		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
 		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
 		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
-		$registrationUID = self::createTincanUID($attempt->id);
-		$statementUID = self::tincanrpt_gen_uuid();
-		$parentid = $CFG->wwwroot . '/mod/course/view.php?id=' . $course->id;
-		$parentObjType = "Activity";
+		
+		$courseID = $course->id;
+		$attemptID = $attempt->id;
+		$quizID = $quiz->id;
+		$quizCompletion = false;
+		$quizStart = date(DATE_ATOM);
+		$userID = $attempt->userid;
+		$attemptState = $attempt->state;
+
 		$statement = array(
-			'id' => $statementUID,
-			'actor' => self::tincan_getactor(),
-			'verb' => array(
-				'id' => 'http://adlnet.gov/expapi/verbs/attempted',
-				'display' => array(
-					'en-US' => 'attempted',
-					'en-GB' => 'attempted',
-				),
-			),
-			'object' => array(
-				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id,
-				'definition' => array(
-					'name' => array(
-						'en-US' => $quiz->name,
-					),
-					'description' => array(
-						'en-US' => $quiz->intro,
-					),
-					'type' => 'http://adlnet.gov/expapi/activities/assessment',
-					'extensions' => array('http://id.tincanapi.co.uk/extension/legacy-id' => self::get_legacy_quiz($quiz->id)),
-				),
-			),
-			'result' => array(
-			"completion" => false,
-			),
-		   // everything after this is standard
-		   'context' => self::tincan_getcontext($registrationUID, $parentid, $parentObjType, self::get_legacy_quiz_revision($quiz->id)),
-		   'timestamp' => date(DATE_ATOM),
+			'courseID' => $courseID,
+			'attemptID' => $attemptID,
+			'quizID' => $quizID,
+			'quizCompletion' => $quizCompletion,
+			'quizStart' => $quizStart,
+		   'userID' => $userID,
+		   'attemptState' => $attemptState,
 		);
 
 		self::tincanrpt_save_statement($statement);
