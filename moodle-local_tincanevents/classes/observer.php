@@ -46,7 +46,7 @@ class report_tincan {
 		$parentObjType = "Activity";
 		$statement = array(
 			'id' => $statementUID,
-			'actor' => self::tincan_getactor(), 
+			'actor' => self::tincan_getactor(),
 			'verb' => array(
 				'id' => 'http://adlnet.gov/expapi/verbs/attempted',
 				'display' => array(
@@ -55,21 +55,21 @@ class report_tincan {
 				),
 			),
 			'object' => array(
-				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id, 
+				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id,
 				'definition' => array(
 					'name' => array(
 						'en-US' => $quiz->name,
 					),
 					'description' => array(
 						'en-US' => $quiz->intro,
-					), 
+					),
 					'type' => 'http://adlnet.gov/expapi/activities/assessment',
 					'extensions' => array('http://id.tincanapi.co.uk/extension/legacy-id' => self::get_legacy_quiz($quiz->id)),
 				),
 			),
 			'result' => array(
 			"completion" => false,
-			),            
+			),
 		   // everything after this is standard
 		   'context' => self::tincan_getcontext($registrationUID, $parentid, $parentObjType, self::get_legacy_quiz_revision($quiz->id)),
 		   'timestamp' => date(DATE_ATOM),
@@ -92,92 +92,92 @@ class report_tincan {
 
 		$parentid = $CFG->wwwroot."/course/view.php?id=" . $event->quizid;
 		$parentObjType = "Activity";
-		 
-		// ###### this looks to be standard 
+
+		// ###### this looks to be standard
 		$statement = array(
 			'id' => $statementUID,
 			'actor' => self::tincan_getactor(),
-			// #### everything before is standard            
+			// #### everything before is standard
 			'verb' => self::tincan_getverb('completed'),
-			// ##### this looks to be standard    
+			// ##### this looks to be standard
 			'object' => array(
-				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id, 
+				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id,
 				'objectType' => 'Activity',
 			),
-			// this is specific to completed processing                
+			// this is specific to completed processing
 			'result' => array(
 				"completion" => true
 			),
-			//  everything after this is standard        
+			//  everything after this is standard
 			'context' => self::tincan_getcontext($registrationUID, $parentid, $parentObjType, self::get_legacy_quiz_revision($quiz->id)),
-			'timestamp' => date(DATE_ATOM), 
+			'timestamp' => date(DATE_ATOM),
 		);
 
-		$statements =array(); 
+		$statements =array();
 		array_push($statements,$statement);
 		//send it
-		
+
 		//add pass or fail block for quiz
 		$outcomeStatement = self::tincan_write_quiz_outcome($event, $quiz, $attempt, $registrationUID);
 		if ($outcomeStatement){
 			array_push($statements,$outcomeStatement);
 		}
 
-		// for each question in quiz - submit the block for the question  
+		// for each question in quiz - submit the block for the question
 		$questions_array = self::tincan_write_question_submits($event,$registrationUID);
-			
+
 		foreach ($questions_array as $question_statement){
 			array_push($statements,$question_statement);
 		}
 
 		self::tincanrpt_save_statements($statements, $url, $basicLogin, $basicPass, $version);
 
-		return true;            
+		return true;
 	}
 
 	public static function tincan_quiz_attempt_submitted_child($event,$questionid,$quiz,$attempt,$questionsattempt, $registrationUID){
 		global $CFG, $DB, $USER;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
 		$cm      = get_coursemodule_from_id('quiz', $event->cmid, $event->courseid);
-		
+
 		$interactionType = "choice";
 		$answers_array = $DB->get_records('question_answers', array('question' => $questionsattempt->questionid));
 
-		// User answer respond reference from the table 
+		// User answer respond reference from the table
 		/*
 		$respondAnswerRefQuery = $DB->get_recordset_sql('SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr WHERE quan.question = '.$questionsattempt->questionid.' AND quan.answer LIKE "%'.$questionsattempt->responsesummary.'%" AND quan.id = clralr.questionanswer');
 		*/
 
-		$respondAnswerRefSQL = "SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr 
-			WHERE quan.question = ? 
-			AND quan.answer LIKE ? 
+		$respondAnswerRefSQL = "SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr
+			WHERE quan.question = ?
+			AND quan.answer LIKE ?
 			AND quan.id = clralr.questionanswer";
 
 		$params = array ("question"=>$questionsattempt->questionid, "answer"=>"%" . $questionsattempt->responsesummary . "%");
-        
-        $recordset = $DB->get_recordset_sql($respondAnswerRefSQL, $params); 
+
+		$recordset = $DB->get_recordset_sql($respondAnswerRefSQL, $params);
 
 		foreach ($recordset as $value) {
 			$respondAnswerRef = $value->areference;
 		}
 
 		$recordset->close();
-		
+
 		$respondAnswerRef = self::tincanrpt_stripSquareBraces($respondAnswerRef);
 
-		// User answer respond reference from the table 
+		// User answer respond reference from the table
 		/*
 		$rightAnswerRefQuery = $DB->get_recordset_sql('SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr WHERE quan.question = '.$questionsattempt->questionid.' AND quan.answer LIKE "%'.$questionsattempt->rightanswer.'%" AND quan.id = clralr.questionanswer');
 		*/
 
-		$rightAnswerRefSQL = "SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr 
-			WHERE quan.question = ? 
-			AND quan.answer LIKE ? 
+		$rightAnswerRefSQL = "SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr
+			WHERE quan.question = ?
+			AND quan.answer LIKE ?
 			AND quan.id = clralr.questionanswer";
 
 		$params = array ("question"=>$questionsattempt->questionid, "answer"=>"%" . $questionsattempt->rightanswer . "%");
-        
-        $recordset = $DB->get_recordset_sql($rightAnswerRefSQL, $params); 
+
+		$recordset = $DB->get_recordset_sql($rightAnswerRefSQL, $params);
 
 		foreach ($recordset as $value) {
 			$rightAnswerRef = $value->areference;
@@ -187,19 +187,19 @@ class report_tincan {
 
 		$rightAnswerRef = self::tincanrpt_stripSquareBraces($rightAnswerRef);
 
-		// All answer references from the table 
+		// All answer references from the table
 		$choices = array();
 		/*
 		$AnswerRefQuery = $DB->get_recordset_sql("SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr WHERE quan.question = ".$questionsattempt->questionid." AND quan.id = clralr.questionanswer");
 		*/
 
-		$answerRefQuerySQL = "SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr 
-			WHERE quan.question = ? 
+		$answerRefQuerySQL = "SELECT clralr.areference FROM mdl_question_answers quan, x_question_answer_legacyref clralr
+			WHERE quan.question = ?
 			AND quan.id = clralr.questionanswer";
 
 		$params = array ("question"=>$questionsattempt->questionid);
-    
-        $recordset = $DB->get_recordset_sql($answerRefQuerySQL, $params); 
+
+		$recordset = $DB->get_recordset_sql($answerRefQuerySQL, $params);
 
 		foreach ($recordset as $value) {
 			array_push(
@@ -211,7 +211,7 @@ class report_tincan {
 
 		$recordset->close();
 
-		// answer respond correct or not 
+		// answer respond correct or not
 		if ($respondAnswerRef == $rightAnswerRef) {
 			$success = true;
 		} else {
@@ -232,7 +232,7 @@ class report_tincan {
 				),
 			),
 			'object' => array(
-				'id' =>  $CFG->wwwroot.'/question/preview.php?id='.$questionsattempt->questionid, 
+				'id' =>  $CFG->wwwroot.'/question/preview.php?id='.$questionsattempt->questionid,
 				'definition' => array(
 					'type' => "http://adlnet.gov/expapi/activities/cmi.interaction",
 					'interactionType' => $interactionType,
@@ -248,7 +248,7 @@ class report_tincan {
 			),
 			'context' => array(
 				"registration" => $registrationUID,
-				"contextActivities" => 
+				"contextActivities" =>
 				array(
 					"grouping" => array(array(
 						"id" =>  $CFG->wwwroot."/course/view.php?id=".$course->id,
@@ -258,18 +258,18 @@ class report_tincan {
 						"id" =>   $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id,
 						"objectType" => "Activity",
 					)),
-				),    			
+				),
 				"revision" => self::get_legacy_quiz_revision($quiz->id),
 				"platform" => $_SERVER['HTTP_USER_AGENT'],
 				"language" => self::tincanrpt_get_moodle_langauge(),
 			),
-			"timestamp" => date(DATE_ATOM), 
+			"timestamp" => date(DATE_ATOM),
 		);
-     
-		if (!is_null($respondAnswerRef)) { 
+
+		if (!is_null($respondAnswerRef)) {
 			$statementsection['result']['response'] = $response;
-		};	
-		
+		};
+
 		//send it
 		try {
 			return $statementsection; // just return the array section as this is part of the overall statement submitted on complete
@@ -291,27 +291,27 @@ class report_tincan {
 		$parentObjType = "Activity";
 
 		$statementUID = self::tincanrpt_gen_uuid();
-		$statementsection = array( 
+		$statementsection = array(
 			'id' => $statementUID,
 			'actor' => self::tincan_getactor(),
 			'verb' => self::tincan_getverb('passed'),
 			'object' => array(
-				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id, 
+				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id,
 				'objectType' => 'Activity',
 			),
-			// this is specific to completed processing        
+			// this is specific to completed processing
 			'result' => array(
 				"completion" => true,
 				"success" => true,
 				"score" => array(
 					'scaled' => (($attempt->sumgrades)/($quiz->sumgrades)),
 					'raw' => (($attempt->sumgrades)/($quiz->sumgrades))*($quiz->grade),
-					'min' => 0, 
-					'max' => floatval($quiz->grade), 
+					'min' => 0,
+					'max' => floatval($quiz->grade),
 				)
 			),
 			'context' => self::tincan_getcontext($registrationUID, $parentid, $parentObjType, self::get_legacy_quiz_revision($quiz->id)),
-			'timestamp' => date(DATE_ATOM),  
+			'timestamp' => date(DATE_ATOM),
 		);
 		try {
 			// as this will be one for a series of statements - just return this json fragment
@@ -334,12 +334,12 @@ class report_tincan {
 		$parentid = $CFG->wwwroot."/course/view.php?id=" . $course->id;
 		$parentObjType = "Activity";
 		$statementUID = self::tincanrpt_gen_uuid();
-		$statementsection = array( 
+		$statementsection = array(
 			'id' => $statementUID,
 			'actor' => self::tincan_getactor(),
 			'verb' => self::tincan_getverb('failed'),
 			'object' => array(
-				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id, 
+				'id' =>  $CFG->wwwroot . '/mod/quiz/view.php?id='. $quiz->id,
 				'objectType' => 'Activity'
 			),
 			'result' => array(
@@ -352,10 +352,10 @@ class report_tincan {
 					'max' => floatval($quiz->grade),
 				),
 			),
-			'context' => self::tincan_getcontext($registrationUID, $parentid, $parentObjType, self::get_legacy_quiz_revision($quiz->id)), 
+			'context' => self::tincan_getcontext($registrationUID, $parentid, $parentObjType, self::get_legacy_quiz_revision($quiz->id)),
 			'timestamp' => date(DATE_ATOM),
 		);
-		try {   
+		try {
 			// as this will be one for a series of statements - just return this json fragment
 			// just return the array section as this is part of the overall statement submitted on complete
 			return ($statementsection);
@@ -368,7 +368,7 @@ class report_tincan {
 
 	public static function tincan_getactor(){
 		global $USER, $CFG;
-		//For this project, never use e-mail but instead use a pipe delimited combo of username and idnumber. TODO for future projects: make this a config setting. 
+		//For this project, never use e-mail but instead use a pipe delimited combo of username and idnumber. TODO for future projects: make this a config setting.
 		/*if ($USER->email){
 			return array(
 				"name" => fullname($USER),
@@ -421,7 +421,7 @@ class report_tincan {
 				//  everything after this is standard
 				"registration"=>$tincanid,
 				"contextActivities" => array(
-					"parent" => array( 
+					"parent" => array(
 						array(
 							"id" => $parentid,
 							"objectType" => $parentObjType
@@ -433,19 +433,19 @@ class report_tincan {
 				"language" => self::tincanrpt_get_moodle_langauge(),
 			)
 		);
-	} 
+	}
 
 	public static function tincan_write_quiz_outcome($event, $quiz, $attempt,$registrationUID){
 		global $CFG, $DB, $USER;
 		// Using the list of qustions from the quiz
 		// get a list of the questions from moodle
 		$passing_grade = 0;
-		if ($quiz_passing_grade = $DB->get_record('grade_items', array('itemmodule' => 'quiz', 'iteminstance' =>$quiz->id))) {  
+		if ($quiz_passing_grade = $DB->get_record('grade_items', array('itemmodule' => 'quiz', 'iteminstance' =>$quiz->id))) {
 			$passing_grade = $quiz_passing_grade->gradepass;
 		}
 		$scaled_grade = $attempt->sumgrades / $quiz->sumgrades * $quiz->grade;
 		if ($passing_grade > 0){
-			// get actual and passing grade and compare them    
+			// get actual and passing grade and compare them
 			if ($scaled_grade >= $passing_grade){
 				// write the block for the pass
 				return self::tincan_quiz_attempt_passing($event,$registrationUID);
@@ -463,32 +463,32 @@ class report_tincan {
 		global $CFG, $DB, $USER;
 		// Using the list of qustions from the quiz
 		// get a list of the questions from moodle
-		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));   
+		$quiz    = $DB->get_record('quiz', array('id' => $event->quizid));
 		$statementsection =  array();
 		$attempt = $DB->get_record('quiz_attempts', array('id' => $event->attemptid));
 		$questionsattempts = $DB->get_records('question_attempts',array('questionusageid'=>$attempt->uniqueid));
-		
+
 		foreach($questionsattempts as $questionsattempt){
 			// add the section relating to this question submission on here
-			
-			
+
+
 			$question_id = $questionsattempt->questionid;
 			if (($question_id != 0 ) &&($questionsattempt->responsesummary))  {
 				$submittedsection[] = self::tincan_quiz_attempt_submitted_child($event,$question_id,$quiz,$attempt,$questionsattempt,$registrationUID);
 			}
 		}
-		
+
 		return $submittedsection;
 	}
 
 	// the UID correspond to $registrationUID used in the various functions
-    // the purpose of it is to associate the various records generated with a given quiz attempt
-    public static function createTincanUID($attemptid){
-        return 1;
+	// the purpose of it is to associate the various records generated with a given quiz attempt
+	public static function createTincanUID($attemptid){
+		return 1;
 	}
 
 	public static function findTincanUID($attemptid){
-        return 1;
+		return 1;
 	}
 
 	public static function get_legacy_quiz($moodle_quiz_id){
@@ -499,9 +499,9 @@ class report_tincan {
 		// no match found so return an empty string  - triggering creation of a new record
 		$legquiz = "no match";
 		// Look for failed status records  - using the Moodle DB API
-		$records = $DB->get_records_sql($SQLGetlegquizUID,$queryparms);      
+		$records = $DB->get_records_sql($SQLGetlegquizUID,$queryparms);
 		foreach ($records as $record) {
-			$legquiz = $record->treference; 
+			$legquiz = $record->treference;
 		}
 		return self::tincanrpt_stripSquareBraces($legquiz);
 	}
@@ -513,21 +513,21 @@ class report_tincan {
 		// no match found so return an empty string  - triggering creation of a new record
 		$legrevision = "no match";
 		// Look for failed status records  - using the Moodle DB API
-		$records = $DB->get_records_sql($SQLGetlegquizUID,$queryparms);      
+		$records = $DB->get_records_sql($SQLGetlegquizUID,$queryparms);
 		foreach ($records as $record) {
-			$legrevision = $record->tversion; 
+			$legrevision = $record->tversion;
 		}
 		return $legrevision;
 	}
-	  
+
 	public static function get_legacy_question($moodle_question_id){
 		global $DB;
 		$queryparms = array ("id"=>$moodle_question_id);
 		$SQLGetlegquestionUID = "SELECT qreference  FROM x_question_legacyref WHERE question = ?";
 		// Look for failed status records  - using the Moodle DB API
-		$records = $DB->get_records_sql($SQLGetlegquestionUID,$queryparms);      
+		$records = $DB->get_records_sql($SQLGetlegquestionUID,$queryparms);
 		foreach ($records as $record) {
-			return (self::tincanrpt_stripSquareBraces($record->qreference)); 
+			return (self::tincanrpt_stripSquareBraces($record->qreference));
 		}
 
 		return ("");
@@ -565,25 +565,25 @@ class report_tincan {
 			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
 		);
 	}
- 
+
 	public static function tincanrpt_save_statement($data, $url, $basicLogin, $basicPass, $version, $statementid) {
-        //XXX point of write
+		//XXX point of write
 		// see if $statementid is necessary
-        file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);
+		file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);
 	}
 
 	public static function tincanrpt_save_statements($data, $url, $basicLogin, $basicPass, $version) {
 		//XXX point where to write
-        file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);     
-		
+		file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);
+
 	}
 	public static function tincanrpt_myJson_encode($obj){
-		// deal with the carriage return line feed 
-		//$str_nolf =  str_replace("\n", " ", $str);    
+		// deal with the carriage return line feed
+		//$str_nolf =  str_replace("\n", " ", $str);
 		//$str_nocrlf =  str_replace("\r", " ", $str_nolf);
-		return strip_tags(str_replace('\\/', '/',json_encode($obj)));        
-	} 
-	
+		return strip_tags(str_replace('\\/', '/',json_encode($obj)));
+	}
+
 	public static function tincanrpt_stripSquareBraces($str){
 		$str = str_replace('[', '', $str);
 		$str = str_replace(']', '', $str);
