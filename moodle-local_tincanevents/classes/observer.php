@@ -75,7 +75,7 @@ class report_tincan_observer {
 		   'timestamp' => date(DATE_ATOM),
 		);
 
-		self::tincanrpt_save_statement($statement, $url, $basicLogin, $basicPass, $version, $statementUID);
+		self::tincanrpt_save_statement($statement);
 
 		return true;
 	}
@@ -130,7 +130,7 @@ class report_tincan_observer {
 			array_push($statements,$question_statement);
 		}
 
-		self::tincanrpt_save_statements($statements, $url, $basicLogin, $basicPass, $version);
+		self::tincanrpt_save_statements($statements);
 
 		return true;
 	}
@@ -566,13 +566,13 @@ class report_tincan_observer {
 		);
 	}
 
-	public static function tincanrpt_save_statement($data, $url, $basicLogin, $basicPass, $version, $statementid) {
+	public static function tincanrpt_save_statement($data) {
 		//XXX point of write
 		// see if $statementid is necessary
 		file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);
 	}
 
-	public static function tincanrpt_save_statements($data, $url, $basicLogin, $basicPass, $version) {
+	public static function tincanrpt_save_statements($data) {
 		//XXX point where to write
 		file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);
 
