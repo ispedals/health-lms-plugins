@@ -136,7 +136,9 @@ class report_tincan_observer {
 	}
 
 	public static function tincan_quiz_attempt_submitted_child($event,$questionid,$quiz,$attempt,$questionsattempt, $registrationUID){
+		//XXX function adds answers and rights answers to record but the sql statements are wrong
 		global $CFG, $DB, $USER;
+		return true;
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
 		$cm = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 
@@ -492,43 +494,18 @@ class report_tincan_observer {
 	}
 
 	public static function get_legacy_quiz($moodle_quiz_id){
-		global $DB;
-		// Create connection
-		$queryparms = array ("id"=>$moodle_quiz_id);
-		$SQLGetlegquizUID = "SELECT treference  FROM x_quiz_legacyref WHERE quiz = ?";
-		// no match found so return an empty string  - triggering creation of a new record
+		// this is supposed to return the revision number of the quiz, but that field no longer seems to exist so just use the quiz id
 		$legquiz = "no match";
-		// Look for failed status records  - using the Moodle DB API
-		$records = $DB->get_records_sql($SQLGetlegquizUID,$queryparms);
-		foreach ($records as $record) {
-			$legquiz = $record->treference;
-		}
 		return self::tincanrpt_stripSquareBraces($legquiz);
 	}
 
 	public static function get_legacy_quiz_revision($moodle_quiz_id){
-		global $DB;
-		$queryparms = array ("id"=>$moodle_quiz_id);
-		$SQLGetlegquizUID = "SELECT tversion  FROM x_quiz_legacyref WHERE quiz = ?";
-		// no match found so return an empty string  - triggering creation of a new record
-		$legrevision = "no match";
-		// Look for failed status records  - using the Moodle DB API
-		$records = $DB->get_records_sql($SQLGetlegquizUID,$queryparms);
-		foreach ($records as $record) {
-			$legrevision = $record->tversion;
-		}
-		return $legrevision;
+		// this is supposed to return the revision number of the quiz, but that field no longer seems to exist so just use the quiz id
+		return $moodle_quiz_id;
 	}
 
 	public static function get_legacy_question($moodle_question_id){
-		global $DB;
-		$queryparms = array ("id"=>$moodle_question_id);
-		$SQLGetlegquestionUID = "SELECT qreference  FROM x_question_legacyref WHERE question = ?";
-		// Look for failed status records  - using the Moodle DB API
-		$records = $DB->get_records_sql($SQLGetlegquestionUID,$queryparms);
-		foreach ($records as $record) {
-			return (self::tincanrpt_stripSquareBraces($record->qreference));
-		}
+		// this is supposed to return the legacy revision number of the question, but that field no longer seems to exist so just return nothing
 
 		return ("");
 	}
