@@ -36,6 +36,23 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 class report_tincan_observer {
 	public static function tincan_quiz_attempt_started($event){
 		global $CFG, $DB;
+		
+		/*
+			//rewrite this function to the following
+			if(is_pretest($quiz)){
+				//constraint: enrolid for current key pair cannot exist
+				$enrolid = createEnrolID($courseID, $userID);
+				$statement = array('enrolid' => $enrolid, 'attemptID' => $attemptID, 'updated' => date(DATE_ATOM));
+				save_pretest($statement);
+			}
+			else {
+				$enrolid = getEnrolID($courseID, $userID);
+				$statement = array('enrolid' => $enrolid, 'attemptID' => $attemptID, 'updated' => date(DATE_ATOM));
+				save_posttest($statement);
+			}
+			
+			return true;
+		*/
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
 		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
 		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
@@ -66,6 +83,20 @@ class report_tincan_observer {
 
 	public static function tincan_quiz_attempt_submitted($event){
 		global $CFG, $DB, $USER;
+		/*
+			//rewrite this function to the following
+			//constraint: enrolid for current key pair cannot exist
+			$enrolid = getEnrolID($courseID, $userID);
+			$statement = array('enrolid' => $enrolid, 'attemptID' => $attemptID, 'updated' => date(DATE_ATOM), 'score' => $score);
+			if(is_pretest($quiz)){
+				save_pretest($statement);
+			}
+			else {
+				save_posttest($statement);
+			}
+			
+			return true;
+		*/
 		$course  = $DB->get_record('course', array('id' => $event->courseid));
 		$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
 		$quiz = $event->get_record_snapshot('quiz', $attempt->quiz);
@@ -118,7 +149,22 @@ class report_tincan_observer {
 
 		return true;
 	}
+	
+	public static function tincan_course_completed($event){
+		global $CFG, $DB, $USER;
+		/*
+		$enrolid = getEnrolID($courseID, $userID);
+		$statement = array('userid' => $userid, 'courseid' => $courseid, 'pretestscore' => $pretestscore, 'posttestscore' => $postestscore, 'updated' => date(DATE_ATOM));
+		atomically {
+			save_grade(statement);
+			delete_enrolment($enrolid);
+		}
+		return true;
+		*/
+		return true;
+	}
 
+	//the following is mostly unnecessary
 	public static function tincan_quiz_attempt_submitted_child($event,$questionid,$quiz,$attempt,$questionsattempt, $registrationUID){
 		//XXX function adds answers and rights answers to record but the sql statements are wrong
 		global $CFG, $DB, $USER;
