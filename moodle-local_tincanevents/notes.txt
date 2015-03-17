@@ -1,3 +1,6 @@
+Grade Archiver
+-------------------
+This plugin archives grades when courses are completed so that they will be saved when the user unenrolls from a course after completion.
 DB structure
 -------------
 grades (keeps track of final course grades)
@@ -7,33 +10,13 @@ pretest score
 posttest score
 datetime
 
-enrollment (keeps track of users that have courses in progress)
-uid
-user id
-course id
-
-pretest (keeps track of pretest scores before course completion)
-foreign key enrollment_uid
-attempt id
-score maybe null
-update datetime
-
-posttest (keeps track of posttest scores before course completion)
-foreign key enrollment_uid
-score maybe null
-update datetime
 
 Events
 -------
 The events listened for are:
 
-    Pretest started- add course attempt to enrollment table; add quiz attempt to pretest table
-    Pretest completed - update pretest table
-    Posttest started - add quiz attempt to posttest table
-    Posttest completed - update posttest table
-    Course completion - add to grades table, delete associated records in enrollment table
-If we are having users unenroll and potentially reenroll, it should not be a problem.
-
+    Course completion - add to grades table
+ 
 UI
 ---
 We are going to (tentatively) use https://docs.moodle.org/28/en/Configurable_reports for the UI.
