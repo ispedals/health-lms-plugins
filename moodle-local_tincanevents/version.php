@@ -15,23 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
-/**
- * Defines the version of tincan
- *
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
- *
- * @package report_tincan
- * @copyright  LEO
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014031705;      // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2013050100;      // Requires this Moodle version
-$plugin->cron      = 300; //0;               // Period for cron to check this plugin (secs)
-$plugin->component = 'report_tincan'; // To check on upgrade, that plugin sits in correct place
+$plugin->version   = 2015032700;
+$plugin->requires  = 2014051200;
+$plugin->cron      = 0;
+$plugin->component = 'report_tincan';
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.01 (Build: 2014031700)';
+$plugin->release = '0.01 (Build: 2015032700)';

@@ -15,35 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Library of interface functions and constants for module tincan
- *
- * All the core Moodle functions, neeeded to allow the module to work
- * integrated in Moodle should be placed here.
- * All the tincan specific functions, needed to implement all the module
- * logic, should go to locallib.php. This will help to save some memory when
- * Moodle is performing actions across all modules.
- *
- * @package report_tincan
- * @copyright  LEO
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/quiz/locallib.php');
+require_once($CFG->dirroot . '/mod/quiz/locallib.php'); //xxx check if needed
 
 class report_tincan_observer {
 
 	public static function tincan_course_completed($event){
 		global $DB;
-        $pregrade = $DB->get_record_sql('SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS Percentage FROM {grade_grades} AS gg JOIN {grade_items} AS gi ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule = "?" AND gi.itemname like "%?%"', array($event->courseid, $event->relateduserid, 'quiz', 'pre'));
-        $postgrade = $DB->get_record_sql('SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS Percentage FROM {grade_grades} AS gg JOIN {grade_items} AS gi ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule = "?" AND gi.itemname like "%?%"', array($event->courseid, $event->relateduserid, 'quiz', 'post'));
-        tincanrpt_save_statement(array('userid' => $event->relateduserid, 'courseid' => $event->courseid, 'pretest' => $pregrade, 'postest'=> $postgrade, 'updated' => date(DATE_ATOM));
-	}
-
-	public static function tincanrpt_save_statement($data) {
-		file_put_contents('quizlog.log',self::tincanrpt_myJson_encode($data), FILE_APPEND | LOCK_EX);
+        $courseid = $event->courseid;
+        $userid = $event->relateduserid;
+        $pregrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%pre%'", array($courseid, $userid, 'quiz'));
+        $postgrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage, gg.timemodified FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%post%'", array($courseid, $userid, 'quiz'));
+        $record = new stdClass();
+        $record->courseid = $courseid;
+        $record->userid = $userid;
+        $record->pretest = $pregrade->percentage;
+        $record->posttest = $postgrade->percentage;
+        $record->updated = $postgrade->timemodified;
+        $DB->insert_record('report_tincan_grades', $record, false);
 	}
 
 }
+
