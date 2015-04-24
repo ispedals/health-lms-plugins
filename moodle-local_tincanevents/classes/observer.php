@@ -25,8 +25,8 @@ class report_tincan_observer {
 		global $DB;
         $courseid = $event->courseid;
         $userid = $event->relateduserid;
-        $pregrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%pre%'", array($courseid, $userid, 'quiz'));
-        $postgrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage, gg.timemodified FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%post%'", array($courseid, $userid, 'quiz'));
+        $pregrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%pretest'", array($courseid, $userid, 'quiz'));
+        $postgrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage, gg.timemodified FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%posttest'", array($courseid, $userid, 'quiz'));
         $record = new stdClass();
         $record->courseid = $courseid;
         $record->userid = $userid;
