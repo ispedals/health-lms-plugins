@@ -1,37 +1,45 @@
 <?php
 
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/filter/viewerjs/lib.php');
 
-/*
-	adapted from filter_mediaplugin in filter/mediaplugin/filter.php from the Moodle core
-	https://github.com/lucisgit/moodle-filter_jwplayer used for guidance
-    
-    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-
 class filter_viewerjs extends moodle_text_filter {
-	private $mediarenderer;
+    private $mediarenderer;
 
 
-	// copied from filter_mediaplugin::filter
+    // copied from filter_mediaplugin::filter
     // the reason we are not using inheritance is because
     // filter_mediaplugin::mediarenderer is private and we have different logic in how it is set
     public function filter($text, array $options = array()) {
-		global $PAGE;
+        global $PAGE;
 
-		if (!is_string($text) or empty($text)) {
-			return $text;
-		}
+        if (!is_string($text) or empty($text)) {
+            return $text;
+        }
 
-		if (stripos($text, '</a>') === false) {
-			return $text;
-		}
+        if (stripos($text, '</a>') === false) {
+            return $text;
+        }
 
-		if (!$this->mediarenderer) {
-			$this->mediarenderer = $PAGE->get_renderer('filter_viewerjs');
-			$embedmarkers = $this->mediarenderer->get_embeddable_markers();
-		}
+        if (!$this->mediarenderer) {
+            $this->mediarenderer = $PAGE->get_renderer('filter_viewerjs');
+            $embedmarkers = $this->mediarenderer->get_embeddable_markers();
+        }
 
         // Looking for tags.
         $matches = preg_split('/(<[^>]*>)/i', $text, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
@@ -77,18 +85,18 @@ class filter_viewerjs extends moodle_text_filter {
         }
         // Return the same string except processed by the above.
         return $newtext;
-	}
+    }
 
-	private function callback(array $matches) {
+    private function callback(array $matches) {
         // Get name.
         $name = trim($matches[2]);
         if (empty($name) or strpos($name, 'http') === 0) {
             $name = ''; // Use default name.
         }
 
-		// Split provided URL into alternatives.
-		$urls = core_media::split_alternatives($matches[1], $width, $height);
-		$result = $this->mediarenderer->embed_alternatives($urls, $name, $width, $height);
+        // Split provided URL into alternatives.
+        $urls = core_media::split_alternatives($matches[1], $width, $height);
+        $result = $this->mediarenderer->embed_alternatives($urls, $name, $width, $height);
 
         // If something was embedded, return it, otherwise return original.
         if ($result !== '') {
@@ -96,6 +104,6 @@ class filter_viewerjs extends moodle_text_filter {
         } else {
             return $matches[0];
         }
-	}
+    }
 }
 ?>

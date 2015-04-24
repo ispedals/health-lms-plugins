@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,11 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2015042400;
-$plugin->requires  = 2014051200;
-$plugin->cron      = 0;
-$plugin->component = 'report_tincan';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.0 (Build: 2015042400)';
+$string['filtername'] = 'Viewerjs';
+?>

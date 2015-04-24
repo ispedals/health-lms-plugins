@@ -1,22 +1,37 @@
 <?php
 
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/medialib.php');
 
 class filter_viewerjs_media extends core_media_player {
 
-	public function embed($urls, $name, $width, $height, $options) {
-		global $CFG;
-		//don't expect alternative urls
-		if(count($urls) !== 1){
-			return ''; //TODO empty string means error, but do better error handling
-		}
+    public function embed($urls, $name, $width, $height, $options) {
+        global $CFG;
+        //don't expect alternative urls
+        if(count($urls) !== 1){
+            return '';
+        }
 
-		$file_url = new moodle_url($urls[0]);
-		$viewerjs_player_url = new moodle_url('/lib/viewerjs');
-		//we assume the lib/viewerjs directory will be two directories away from the intital public directory
-		$viewerjs_player_url->set_anchor('../..' . $file_url->out_as_local_url());
+        $file_url = new moodle_url($urls[0]);
+        $viewerjs_player_url = new moodle_url('/lib/viewerjs');
+        //we assume the lib/viewerjs directory will be two directories away from the initial public directory
+        $viewerjs_player_url->set_anchor('../..' . $file_url->out_as_local_url());
 
         if(!$width){
             $width = 800;
@@ -25,22 +40,22 @@ class filter_viewerjs_media extends core_media_player {
             $height = 600;
         }
         
-		$output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' =>  $width, 'height' =>  $height, 'webkitallowfullscreen' => 'webkitallowfullscreen', 'mozallowfullscreen' => 'mozallowfullscreen', 'allowfullscreen' => 'allowfullscreen' ));
+        $output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' =>  $width, 'height' =>  $height, 'webkitallowfullscreen' => 'webkitallowfullscreen', 'mozallowfullscreen' => 'mozallowfullscreen', 'allowfullscreen' => 'allowfullscreen' ));
 
-		return $output;
-	}
+        return $output;
+    }
 
-	 public function get_supported_extensions() {
-		return array('pdf', 'ods', 'odp', 'odt');
-	}
+     public function get_supported_extensions() {
+        return array('pdf', 'ods', 'odp', 'odt');
+    }
 
-	 public function get_rank() {
-		return 1; //TODO 0 means that this player does not really render video, but unsure the implication of what will happen
-	}
+     public function get_rank() {
+        return 1;
+    }
 
-	public function is_enabled() {
-		return true;
-	}
+    public function is_enabled() {
+        return true;
+    }
 }
 
 ?>
