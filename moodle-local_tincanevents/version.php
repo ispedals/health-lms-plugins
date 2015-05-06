@@ -17,7 +17,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015042400;
+$plugin->version   = 2015042401;
 $plugin->requires  = 2014051200;
 $plugin->cron      = 0;
 $plugin->component = 'report_tincan';
