@@ -36,24 +36,25 @@ class filter_viewerjs extends moodle_text_filter {
             return $text;
         }
 
-        if (!$this->mediarenderer) {
-            $this->mediarenderer = $PAGE->get_renderer('filter_viewerjs');
-            $embedmarkers = $this->mediarenderer->get_embeddable_markers();
-        }
+		if (!$this->mediarenderer) {
+			$this->mediarenderer = $PAGE->get_renderer('filter_viewerjs');
+		}
+		$embedmarkers = $this->mediarenderer->get_embeddable_markers();
 
         // Looking for tags.
         $matches = preg_split('/(<[^>]*>)/i', $text, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        
+
         if (!$matches) {
             return $text;
         }
-        
+
         // Regex to find media extensions in an <a> tag.
+		// TODO try to only match local urls, as they are the only ones that will work
         $re = '~<a\s[^>]*href="([^"]*(?:' .  $embedmarkers . ')[^"]*)"[^>]*>([^>]*)</a>~is';
         $newtext = '';
         $validtag = '';
         $sizeofmatches = count($matches);
-        
+
         // We iterate through the given string to find valid <a> tags
         // and build them so that the callback function can check it for
         // embedded content. Then we rebuild the string.
@@ -87,23 +88,29 @@ class filter_viewerjs extends moodle_text_filter {
         return $newtext;
     }
 
-    private function callback(array $matches) {
-        // Get name.
-        $name = trim($matches[2]);
-        if (empty($name) or strpos($name, 'http') === 0) {
-            $name = ''; // Use default name.
-        }
+	private function callback(array $matches) {
+		try { // guard against runtime errors
+			// Get name.
+			$name = trim($matches[2]);
+			if (empty($name) or strpos($name, 'http') === 0) {
+				$name = ''; // Use default name.
+			}
 
-        // Split provided URL into alternatives.
-        $urls = core_media::split_alternatives($matches[1], $width, $height);
-        $result = $this->mediarenderer->embed_alternatives($urls, $name, $width, $height);
+			// Split provided URL into alternatives.
+			$urls = core_media::split_alternatives($matches[1], $width, $height);
+			$result = $this->mediarenderer->embed_alternatives($urls, $name, $width, $height);
 
-        // If something was embedded, return it, otherwise return original.
-        if ($result !== '') {
-            return $result;
-        } else {
-            return $matches[0];
-        }
-    }
+			// If something was embedded, return it, otherwise return original.
+			if ($result !== '') {
+				return $result;
+			} else {
+				return $matches[0];
+			}
+		}
+		catch (Exception $e) {
+			error_log('filterjs encountered an exception: ' . $e->getMessage(), 0);
+			return $matches[0];
+		}
+	}
 }
 ?>

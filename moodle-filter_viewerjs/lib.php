@@ -28,10 +28,18 @@ class filter_viewerjs_media extends core_media_player {
             return '';
         }
 
-        $file_url = new moodle_url($urls[0]);
-        $viewerjs_player_url = new moodle_url('/lib/viewerjs');
-        //we assume the lib/viewerjs directory will be two directories away from the initial public directory
-        $viewerjs_player_url->set_anchor('../..' . $file_url->out_as_local_url());
+		$file_url = new moodle_url($urls[0]);
+		$viewerjs_player_url = new moodle_url('/lib/viewerjs');
+		try {
+			//out_as_local_url() throws when the url is not a local url
+			//we currently rely on this exception to determine whether the url is local or not
+
+			//we assume the lib/viewerjs directory will be two directories away from the initial public directory
+			$viewerjs_player_url->set_anchor('../..' . $file_url->out_as_local_url());
+		}
+		catch(coding_exception $e){
+			return ''; //TODO empty string means error, but do better error handling
+		}
 
         if(!$width){
             $width = 800;
@@ -39,8 +47,8 @@ class filter_viewerjs_media extends core_media_player {
         if(!$height){
             $height = 600;
         }
-        
-        $output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' =>  $width, 'height' =>  $height, 'webkitallowfullscreen' => 'webkitallowfullscreen', 'mozallowfullscreen' => 'mozallowfullscreen', 'allowfullscreen' => 'allowfullscreen' ));
+
+		$output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' =>  $width, 'height' =>  $height, 'webkitallowfullscreen' => 'webkitallowfullscreen', 'mozallowfullscreen' => 'mozallowfullscreen', 'allowfullscreen' => 'allowfullscreen' ));
 
         return $output;
     }
