@@ -19,7 +19,7 @@ class block_tincan extends block_list {
  
     $context = context_user::instance($USER->id);
     
-    if(has_capability('report/configreports:managereports', $context, $USER->id){
+    if(has_capability('report/configreports:managereports', $context, $USER->id)){
       $this->content->items[] = html_writer::tag('a', get_string('learner_grades', 'block_tincan'), array('href' => '/blocks/configurable_reports/viewreport.php?id=12'));
       $this->content->icons[] = html_writer::empty_tag('img', array('src' => 'about:blank, 'class' => 'icon'));
     }
