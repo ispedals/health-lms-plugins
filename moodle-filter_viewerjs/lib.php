@@ -42,10 +42,10 @@ class filter_viewerjs_media extends core_media_player {
 		}
 
         if(!$width){
-            $width = 400;
+            $width = '100%';
         }
         if(!$height){
-            $height = 300;
+            $height = 500;
         }
 
 		$output = html_writer::tag('iframe', '', array('src' => $viewerjs_player_url->out(), 'width' =>  $width, 'height' =>  $height, 'webkitallowfullscreen' => 'webkitallowfullscreen', 'mozallowfullscreen' => 'mozallowfullscreen', 'allowfullscreen' => 'allowfullscreen' ));
