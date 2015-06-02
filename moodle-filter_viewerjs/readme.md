@@ -18,7 +18,6 @@ it being bundled with the filter.
 3. Create a link to a PDF
 4. When you save and view the page, you should see the PDF displayed in the embedded player
 
-##Todo
-
-* Work out licensing (should be under GPLv3, but who owns copyright?)
+##License
+2015 ispedals, GPL 3.0
 
