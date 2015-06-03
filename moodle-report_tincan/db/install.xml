@@ -7,11 +7,11 @@
     <TABLE NAME="report_tincan_grades" COMMENT="final course grades">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="user id"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="course id"/>
-        <FIELD NAME="pretest" TYPE="number" LENGTH="6" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Pretest score"/>
-        <FIELD NAME="posttest" TYPE="number" LENGTH="6" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Posttest score"/>
-        <FIELD NAME="updated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="UNIX datetime when updated"/>
+        <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="full name"/>
+        <FIELD NAME="course" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="course name"/>
+        <FIELD NAME="type" TYPE="text" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="item name"/>
+        <FIELD NAME="score" TYPE="text" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="score"/>
+        <FIELD NAME="updated" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="time when graded"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
