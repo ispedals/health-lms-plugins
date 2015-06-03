@@ -7,6 +7,9 @@
     <TABLE NAME="report_tincan_grades" COMMENT="final course grades">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="full name"/>
         <FIELD NAME="course" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="course name"/>
         <FIELD NAME="type" TYPE="text" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="item name"/>
