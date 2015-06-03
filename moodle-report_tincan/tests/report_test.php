@@ -54,9 +54,11 @@ class report_tincanevents_testcase extends advanced_testcase {
 		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
         $ccompletion->mark_complete();
 
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertEquals($result->pretest, 100, 'retrieved pretest');
-		$this->assertEquals($result->posttest, 100, 'retrieved posttest');
+        $result = $DB->get_record_sql("SELECT score from phpu_report_tincan_grades where userid = ? and type like %pre%", array($student->id));
+		$this->assertEquals($result->score, 100, 'retrieved pretest');
+		
+		$result = $DB->get_record_sql("SELECT score from phpu_report_tincan_grades where userid = ? and type like %post%", array($student->id));
+		$this->assertEquals($result->score, 100, 'retrieved pretest');
 	}
 
 	public function test_pretest_no_posttest() {
@@ -70,143 +72,13 @@ class report_tincanevents_testcase extends advanced_testcase {
 		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
         $ccompletion->mark_complete();
 
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertEquals($result->pretest, 100, 'retrieved pretest');
-		$this->assertNull($result->posttest, 'retrieved nonexisting posttest');
+        $result = $DB->get_record_sql("SELECT score from phpu_report_tincan_grades where userid = ? and type like %pre%", array($student->id));
+		$this->assertEquals($result->score, 100, 'retrieved pretest');
+		
+		$result = $DB->get_record_sql("SELECT score from phpu_report_tincan_grades where userid = ? and type like %post%", array($student->id));
+		$this->assertEquals($result->score, 100, 'retrieved pretest');
+		$this->assertNull($result->score, 'retrieved nonexisting posttest');
 	}
-
-	public function test_pretest_fake_posttest() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'Infection Control Pretest');
-		$this->create_and_take_quiz($course, $student, 'Posttest Infection Control');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertEquals($result->pretest, 100, 'retrieved pretest');
-		$this->assertNull($result->posttest, 'did not detect quiz name with posttest in the title as a posttest');
-	}
-
-	public function test_no_pretest_posttest() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'Infection Control Posttest');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertNull($result->pretest, 'retrieved nonexisting pretest');
-		$this->assertEquals($result->posttest, 100, 'retrieved posttest');
-	}
-
-	public function test_fake_pretest_posttest() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'Infection Pretest Control');
-		$this->create_and_take_quiz($course, $student, 'Infection Control Posttest');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertNull($result->pretest, 'did not detect quiz name with pretest in the title as a pretest');
-		$this->assertEquals($result->posttest, 100);
-	}
-
-	public function test_case_caps() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'Infection Control PRETEST');
-		$this->create_and_take_quiz($course, $student, 'Infection Control POSTTEST');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertEquals($result->pretest, 100, 'retrieved pretest when title was in all caps');
-		$this->assertEquals($result->posttest, 100, 'retrieved posttest when title was in all caps');
-	}
-
-	public function test_case_nocaps() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'Infection Control pretest');
-		$this->create_and_take_quiz($course, $student, 'Infection Control posttest');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertEquals($result->pretest, 100, 'retrieved pretest when title was in all lowercase');
-		$this->assertEquals($result->posttest, 100, 'retrieved posttest when title was in all lowercase');
-	}
-
-	public function test_case_barename() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'pretest');
-		$this->create_and_take_quiz($course, $student, 'posttest');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertEquals($result->pretest, 100, 'retrieved pretest when title was just pretest');
-		$this->assertEquals($result->posttest, 100, 'retrieved posttest when title was just posttest');
-	}
-
-	public function test_no_pretest_no_posttest() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertNull($result->pretest, 'did not care if pretest did not exist');
-		$this->assertNull($result->posttest, 'did not care if posttest did not exist');
-	}
-
-	public function test_no_pretest_multiple_posttest() {
-		global $CFG, $DB;
-		$student = $this->student;
-		$course = $this->course;
-
-		$this->create_and_take_quiz($course, $student, 'posttest');
-		$this->create_and_take_quiz($course, $student, '2 posttest');
-
-        // Mark course as complete.
-		$ccompletion = new completion_completion(array('course' =>  $course->id, 'userid' => $student->id));
-        $ccompletion->mark_complete();
-
-        $result = $DB->get_record_sql("SELECT pretest, posttest from phpu_report_tincan_grades where userid = ?", array($student->id));
-		$this->assertNull($result->pretest, 'did not care if pretest did not exist');
-		$this->assertEquals($result->posttest, 100, 'handled multiple posttests');
-	}
-
 	//adapted from mod/quiz/tests/lib_test.php:mod_quiz_lib_testcase::test_quiz_get_completion_state() @e527aff4
 	protected function create_and_take_quiz($course, $student, $quizname){
 		// Make a quiz with the outcome on.
