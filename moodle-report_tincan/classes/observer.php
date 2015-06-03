@@ -38,22 +38,28 @@ class report_tincan_observer {
         
         foreach ($grade_items as $grade_item) {
             $grades = grade_get_grades($courseid, $grade_item->itemtype, $grade_item->itemmodule, $grade_item->iteminstance, $userid);
-            foreach($grades->items as $grade){
+            foreach($grades->items as $item){
                 $record = new stdClass();
+                $record->userid = $userid;
+                $record->courseid = $courseid;
+                $record->itemid = $item->id;
                 $record->name = $name;
                 $record->course = $coursename;
-                $record->type = $grade[$userid]->name;
-                $record->score = $grade[$userid]->str_grade;
-                $record->updated = $grade[$userid]->dategraded;
+                $record->type = $item->grade[$userid]->name;
+                $record->score = $item->grade[$userid]->str_grade;
+                $record->updated = $item->grade[$userid]->dategraded;
                 $records[]=$record;
             }
             foreach($grades->outcomes as $grade){
                 $record = new stdClass();
+                $record->userid = $userid;
+                $record->courseid = $courseid;
+                $record->itemid = $item->id;
                 $record->name = $name;
                 $record->course = $course;
-                $record->type = $grade[$userid]->name;
-                $record->score = $grade[$userid]->str_grade;
-                $record->updated = $grade[$userid]->usermodified;
+                $record->type = $item->grade[$userid]->name;
+                $record->score = $item->grade[$userid]->str_grade;
+                $record->updated = $item->grade[$userid]->usermodified;
                 $records[]=$record;
             }
         }
