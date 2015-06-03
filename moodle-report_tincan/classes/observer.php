@@ -17,21 +17,47 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/grade/grade_item.php');
+require_once($CFG->libdir . '/gradelib.php');
+
 class report_tincan_observer {
 
     public static function tincan_course_completed($event){
         global $DB;
+        
         $courseid = $event->courseid;
         $userid = $event->relateduserid;
-        $pregrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%pretest' LIMIT 1", array($courseid, $userid, 'quiz'));
-        $postgrade = $DB->get_record_sql("SELECT ROUND(finalgrade / rawgrademax * 100 ,2) AS percentage, gg.timemodified FROM {grade_grades} as gg JOIN {grade_items} AS gi  ON gi.id = gg.itemid WHERE gi.courseid = ? AND gg.userid = ? AND gi.itemmodule=? AND gi.itemname LIKE '%posttest' LIMIT 1", array($courseid, $userid, 'quiz'));
-        $record = new stdClass();
-        $record->courseid = $courseid;
-        $record->userid = $userid;
-        $record->pretest = is_object($pregrade) ? $pregrade->percentage : null;
-        $record->posttest = is_object($postgrade) ? $postgrade->percentage : null;
-        $record->updated = $event->timecreated;
-        $DB->insert_record('report_tincan_grades', $record, false);
+        $dbuser = $DB->get_record('user', array('id' => $userid));
+        $name = $dbuser->firstname . ' ' . $dbuser->lastname;
+        $course = get_course($courseid);
+        $coursename = $course->name;
+        
+        $records = array();
+        
+        $grade_items = grade_items::fetch_all(array('courseid' => $courseid));
+        
+        foreach ($grade_items as $grade_item) {
+            $grades = grade_get_grades($courseid, $grade_item->itemtype, $grade_item->itemmodule, $grade_item->iteminstance, $userid);
+            foreach($grades->items as $grade){
+                $record = new stdClass();
+                $record->name = $name;
+                $record->course = $coursename;
+                $record->type = $grade[$userid]->name;
+                $record->score = $grade[$userid]->str_grade;
+                $record->updated = $grade[$userid]->dategraded;
+                $records[]=$record;
+            }
+            foreach($grades->outcomes as $grade){
+                $record = new stdClass();
+                $record->name = $name;
+                $record->course = $course;
+                $record->type = $grade[$userid]->name;
+                $record->score = $grade[$userid]->str_grade;
+                $record->updated = $grade[$userid]->usermodified;
+                $records[]=$record;
+            }
+        }
+        $DB->insert_records('report_tincan_grades', $records);
     }
 
 }
