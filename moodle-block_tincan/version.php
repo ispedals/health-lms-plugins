@@ -22,12 +22,9 @@
  
 defined('MOODLE_INTERNAL') || die();
  
-$plugin->version   = TODO;
-$plugin->requires  = TODO;
+$plugin->version   = 2015042403;
+$plugin->requires  = 2014050800;
 $plugin->component = 'block_tincan';
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = 'TODO';
- 
-//state dependencies on configurable reports and on reporting plugin
-$plugin->dependencies = array(
-);
+$plugin->release   = '1.0';
+
