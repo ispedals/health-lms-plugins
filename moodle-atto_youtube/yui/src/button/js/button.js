@@ -1,32 +1,3 @@
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/*
- * @package atto_image
- * @copyright 2013 Damyon Wiese <damyon@moodle.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-/**
- * @module moodle-atto_image_alignment-button
- */
-/**
- * Atto image selection tool.
- *
- * @namespace M.atto_image
- * @class Button
- * @extends M.editor_atto.EditorPlugin
- */
 var CSS = {
         RESPONSIVE: 'img-responsive',
         INPUTALIGNMENT: 'atto_image_alignment',
@@ -56,9 +27,6 @@ var CSS = {
     '<label for="{{elementid}}_{{CSS.INPUTURL}}">{{get_string "enterurl" component}}</label>' +
     '<input class="fullwidth {{CSS.INPUTURL}}" type="url" id="{{elementid}}_{{CSS.INPUTURL}}" size="32"/>' +
     '<br/>' +
-    '<label for="{{elementid}}_{{CSS.INPUTALT}}">{{get_string "enteralt" component}}</label>' +
-    '<input class="fullwidth {{CSS.INPUTALT}}" type="text" value="" id="{{elementid}}_{{CSS.INPUTALT}}" size="32"/>' +
-    '<br/>' +
     // Add the size entry boxes.
     '<label class="sameline" for="{{elementid}}_{{CSS.INPUTSIZE}}">{{get_string "size" component}}</label>' +
     '<div id="{{elementid}}_{{CSS.INPUTSIZE}}" class="{{CSS.INPUTSIZE}}">' +
@@ -68,33 +36,16 @@ var CSS = {
     '<label class="accesshide" for="{{elementid}}_{{CSS.INPUTHEIGHT}}">{{get_string "height" component}}</label>' +
     '<input type="text" class="{{CSS.INPUTHEIGHT}} input-mini" id="{{elementid}}_{{CSS.INPUTHEIGHT}}" size="4"/>' +
     '</div>' +
-    // Add the alignment selector.
-    '<label class="sameline" for="{{elementid}}_{{CSS.INPUTALIGNMENT}}">{{get_string "alignment" component}}</label>' +
-    '<select class="{{CSS.INPUTALIGNMENT}}" id="{{elementid}}_{{CSS.INPUTALIGNMENT}}">' +
-    '{{#each alignments}}' +
-    '<option value="{{value}}:{{name}};">{{get_string str ../component}}</option>' +
-    '{{/each}}' +
-    '</select>' +
     // Hidden input to store custom styles.
     '<input type="hidden" class="{{CSS.INPUTCUSTOMSTYLE}}"/>' +
     '<br/>' +
     // Add the image preview.
     '<div class="mdl-align">' +
-    '<div class="{{CSS.IMAGEPREVIEWBOX}}">' +
-    '<img src="#" class="{{CSS.IMAGEPREVIEW}}" alt="" style="display: none;"/>' +
-    '</div>' +
     // Add the submit button and close the form.
     '<button class="{{CSS.INPUTSUBMIT}}" type="submit">{{get_string "saveimage" component}}</button>' +
     '</div>' +
     '</form>',
-    IMAGETEMPLATE = '' +
-    '<img src="{{url}}" alt="{{alt}}" ' +
-    '{{#if width}}width="{{width}}" {{/if}}' +
-    '{{#if height}}height="{{height}}" {{/if}}' +
-    '{{#if presentation}}role="presentation" {{/if}}' +
-    'style="{{alignment}}{{margin}}{{customstyle}}"' +
-    '{{#if classlist}}class="{{classlist}}" {{/if}}' +
-    '/>';
+    IMAGETEMPLATE = '<iframe src="{{url}}" frameborder="0" allowfullscreen></iframe>';
 Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
     /**
      * A reference to the current selection at the time that the dialogue
@@ -133,11 +84,11 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
         this.addButton({
             icon: 'e/insert_edit_image',
             callback: this._displayDialogue,
-            tags: 'img',
+            tags: 'iframe',
             tagMatchRequiresAll: false
         });
-        this.editor.delegate('dblclick', this._displayDialogue, 'img', this);
-        this.editor.delegate('click', this._handleClick, 'img', this);
+        this.editor.delegate('dblclick', this._displayDialogue, 'iframe', this);
+        this.editor.delegate('click', this._handleClick, 'iframe', this);
     },
     /**
      * Handle a click on an image.
@@ -197,20 +148,15 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
      */
     _getDialogueContent: function() {
         var template = Y.Handlebars.compile(TEMPLATE),
-            canShowFilepicker = this.get('host').canShowFilepicker('image'),
             content = Y.Node.create(template({
                 elementid: this.get('host').get('elementid'),
                 CSS: CSS,
-                component: COMPONENTNAME,
-                showFilepicker: canShowFilepicker,
-                alignments: ALIGNMENTS
+                component: COMPONENTNAME
             }));
         this._form = content;
         // Configure the view of the current image.
         this._applyImageProperties(this._form);
         this._form.one('.' + CSS.INPUTURL).on('blur', this._urlChanged, this);
-        this._form.one('.' + CSS.INPUTWIDTH).on('blur', this._autoAdjustSize, this);
-        this._form.one('.' + CSS.INPUTHEIGHT).on('blur', this._autoAdjustSize, this, true);
 
         this._form.one('.' + CSS.INPUTURL).on('blur', this._urlChanged, this);
         this._form.one('.' + CSS.INPUTSUBMIT).on('click', this._setImage, this);
@@ -231,26 +177,7 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
             i;
         if (properties === false) {
             img.setStyle('display', 'none');
-            // Set the default alignment.
-            for (i in ALIGNMENTS) {
-                if (ALIGNMENTS[i].isDefault === true) {
-                    css = ALIGNMENTS[i].value + ':' + ALIGNMENTS[i].name + ';';
-                    form.one('.' + CSS.INPUTALIGNMENT).set('value', css);
-                }
-            }
-            // Remove the custom style option if this is a new image.
-            form.one('.' + CSS.INPUTALIGNMENT).getDOMNode().options.remove(ALIGNMENTS.length - 1);
             return;
-        }
-        if (properties.align) {
-            form.one('.' + CSS.INPUTALIGNMENT).set('value', properties.align);
-            // Remove the custom style option if we have a standard alignment.
-            form.one('.' + CSS.INPUTALIGNMENT).getDOMNode().options.remove(ALIGNMENTS.length - 1);
-        } else {
-            form.one('.' + CSS.INPUTALIGNMENT).set('value', 'style:customstyle;');
-        }
-        if (properties.customstyle) {
-            form.one('.' + CSS.INPUTCUSTOMSTYLE).set('value', properties.customstyle);
         }
         if (properties.width) {
             form.one('.' + CSS.INPUTWIDTH).set('value', properties.width);
@@ -258,18 +185,10 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
         if (properties.height) {
             form.one('.' + CSS.INPUTHEIGHT).set('value', properties.height);
         }
-        if (properties.alt) {
-            form.one('.' + CSS.INPUTALT).set('value', properties.alt);
-        }
         if (properties.src) {
             form.one('.' + CSS.INPUTURL).set('value', properties.src);
             this._loadPreviewImage(properties.src);
         }
-        if (properties.presentation) {
-            form.one('.' + CSS.IMAGEPRESENTATION).set('checked', 'checked');
-        }
-        // Update the image preview based on the form properties.
-        this._autoAdjustSize();
     },
     /**
      * Gets the properties of the currently selected image.
@@ -284,14 +203,22 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
         var properties = {
                 start: null,
                 stop: null,
-            },
-            // Get the current selection.
-            videos = this.get('host').getSelectedNodes();
+		},
+		videos = this.get('host').getSelectedNodes();
         if (videos) {
             videos = videos.filter('iframe .youtuberestrict');
         }
         if (videos && videos.size()) {
-            //parse out start and end from url
+            var url = videos.get(0).getAttribute('src');
+			var params = url.split('?').split('&');
+			for(var i = 0; i < params.length; i++){
+				if(params[i].indexOf('start') === 0){
+					properties.start = params[i].split('=')[1];
+				}
+				if(params[i].indexOf('end') === 0){
+					properties.end = params[i].split('=')[1];
+				}
+			}
             return properties;
         }
         // No image selected - clean up.
@@ -324,23 +251,13 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
         //convert to html
         var form = this._form,
             url = form.one('.' + CSS.INPUTURL).get('value'),
-            alt = form.one('.' + CSS.INPUTALT).get('value'),
             width = form.one('.' + CSS.INPUTWIDTH).get('value'),
             height = form.one('.' + CSS.INPUTHEIGHT).get('value'),
-            alignment = form.one('.' + CSS.INPUTALIGNMENT).get('value'),
-            margin = '',
-            presentation = form.one('.' + CSS.IMAGEPRESENTATION).get('checked'),
-            constrain = form.one('.' + CSS.INPUTCONSTRAIN).get('checked'),
             imagehtml,
-            customstyle = '',
             i,
             classlist = [],
             host = this.get('host');
         e.preventDefault();
-        // Check if there are any accessibility issues.
-        if (this._updateWarning()) {
-            return;
-        }
         // Focus on the editor in preparation for inserting the image.
         host.focus();
         if (url !== '') {
@@ -349,40 +266,10 @@ Y.namespace('M.atto_image').Button = Y.Base.create('button', Y.M.editor_atto.Edi
             } else {
                 host.setSelection(this._currentSelection);
             }
-            if (alignment === 'style:customstyle;') {
-                alignment = '';
-                customstyle = form.one('.' + CSS.INPUTCUSTOMSTYLE).get('value');
-            } else {
-                for (i in ALIGNMENTS) {
-                    css = ALIGNMENTS[i].value + ':' + ALIGNMENTS[i].name + ';';
-                    if (alignment === css) {
-                        margin = ' margin: ' + ALIGNMENTS[i].margin + ';';
-                    }
-                }
-            }
-            if (constrain) {
-                classlist.push(CSS.RESPONSIVE);
-            }
-            if (!width.match(REGEX.ISPERCENT) && isNaN(parseInt(width, 10))) {
-                form.one('.' + CSS.INPUTWIDTH).focus();
-                return;
-            }
-            if (!height.match(REGEX.ISPERCENT) && isNaN(parseInt(height, 10))) {
-                form.one('.' + CSS.INPUTHEIGHT).focus();
-                return;
-            }
             template = Y.Handlebars.compile(IMAGETEMPLATE);
             imagehtml = template({
-                url: url,
-                alt: alt,
-                width: width,
-                height: height,
-                presentation: presentation,
-                alignment: alignment,
-                margin: margin,
-                customstyle: customstyle,
-                classlist: classlist.join(' ')
-            });
+                url: url
+			});
             this.get('host').insertContentAtFocusPoint(imagehtml);
             this.markUpdated();
         }
