@@ -1,3 +1,5 @@
+YUI.add('moodle-atto_youtube-button', function (Y, NAME) {
+
 var CSS = {
         INPUTEND: 'atto_youtube_endentry',
         INPUTSUBMIT: 'atto_youtube_urlentrysubmit',
@@ -328,3 +330,6 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
 		return (minutes * 60) + seconds;
 	}
 });
+
+
+}, '@VERSION@', {"requires": ["moodle-editor_atto-plugin"]});
