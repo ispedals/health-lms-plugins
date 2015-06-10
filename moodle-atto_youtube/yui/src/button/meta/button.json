@@ -1,7 +1,7 @@
 {
-"moodle-atto_youtube-button": {
-"requires": [
-"moodle-editor_atto-plugin"
-]
-}
+  "moodle-atto_youtube-button": {
+    "requires": [
+      "moodle-editor_atto-plugin"
+    ]
+  }
 }
