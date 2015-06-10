@@ -35,38 +35,13 @@ var CSS = {
 	'<iframe src="{{url}}?start={{start}}{{{amp}}}end={{end}}{{{amp}}}modestbranding=1{{{amp}}}rel=0{{{amp}}}showinfo=0" width="400" height="300" allowfullscreen="1" class="youtuberestrict"></iframe>'+
 	'</span>';
 Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
-    /**
-     * A reference to the current selection at the time that the dialogue
-     * was opened.
-     *
-     * @property _currentSelection
-     * @type Range
-     * @private
-     */
+
     _currentSelection: null,
-    /**
-     * The most recently selected image.
-     *
-     * @param _selectedImage
-     * @type Node
-     * @private
-     */
+
     _selectedvideo: null,
-    /**
-     * A reference to the currently open form.
-     *
-     * @param _form
-     * @type Node
-     * @private
-     */
+
     _form: null,
-    /**
-     * The dimensions of the raw image before we manipulate it.
-     *
-     * @param _rawImageDimensions
-     * @type Object
-     * @private
-     */
+
     _rawVideoProperties: null,
     initializer: function() {
         this.addButton({
@@ -76,13 +51,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
         this.editor.delegate('dblclick', this._displayDialogue, 'iframe', this);
         this.editor.delegate('click', this._handleClick, 'iframe', this);
     },
-    /**
-     * Handle a click on an image.
-     *
-     * @method _handleClick
-     * @param {EventFacade} e
-     * @private
-     */
+
     _handleClick: function(e) {
         var video = e.target,
 		selection = this.get('host').getSelectionFromNode(video);
@@ -90,12 +59,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
             this.get('host').setSelection(selection);
         }
     },
-    /**
-     * Display the image editing tool.
-     *
-     * @method _displayDialogue
-     * @private
-     */
+
     _displayDialogue: function() {
         // Store the current selection.
         this._currentSelection = this.get('host').getSelection();
@@ -114,14 +78,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
         dialogue.set('bodyContent', this._getDialogueContent())
             .show();
     },
-    /**
-     * Set the inputs for width and height if they are not set, and calculate
-     * if the constrain checkbox should be checked or not.
-     *
-     * @method _loadPreviewImage
-     * @param {String} url
-     * @private
-     */
+
     _loadPreviewVideo: function(url) {
 		var input, currentStart, currentEnd, newurl;
 		this._rawVideoProperties = this._parseTimes(url);
@@ -155,14 +112,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
 		}
 
     },
-    /**
-     * Return the dialogue content for the tool, attaching any required
-     * events.
-     *
-     * @method _getDialogueContent
-     * @return {Node} The content to place in the dialogue.
-     * @private
-     */
+
     _getDialogueContent: function() {
         var template = Y.Handlebars.compile(TEMPLATE),
             content = Y.Node.create(template({
@@ -171,28 +121,21 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
                 component: COMPONENTNAME
             }));
         this._form = content;
-        // Configure the view of the current image.
         this._applyVideoProperties(this._form);
         this._form.one('.' + CSS.INPUTURL).on('blur', this._urlChanged, this);
 		this._form.one('.' + CSS.INPUTSTART).on('blur', this._urlChanged, this);
         this._form.one('.' + CSS.INPUTEND).on('blur', this._urlChanged, this, true);
-        this._form.one('.' + CSS.INPUTSUBMIT).on('click', this._setImage, this);
+        this._form.one('.' + CSS.INPUTSUBMIT).on('click', this._setVideo, this);
 
         return content;
     },
-    /**
-     * Applies properties of an existing image to the image dialogue for editing.
-     *
-     * @method _applyVideoProperties
-     * @param {Node} form
-     * @private
-     */
+
     _applyVideoProperties: function(form) {
       //update form with start and end from url
         var properties = this._getSelectedVideoProperties(),
-            img = form.one('.' + CSS.YOUTUBEPREVIEW);
+            preview = form.one('.' + CSS.YOUTUBEPREVIEW);
         if (properties === false) {
-            img.setStyle('display', 'none');
+            preview.setStyle('display', 'none');
             return;
         }
         if (properties.start) {
@@ -206,15 +149,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
             this._loadPreviewVideo(properties.src);
         }
     },
-    /**
-     * Gets the properties of the currently selected image.
-     *
-     * The first image only if multiple images are selected.
-     *
-     * @method _getSelectedVideoProperties
-     * @return {object}
-     * @private
-     */
+
     _getSelectedVideoProperties: function() {
         var videos = this.get('host').getSelectedNodes(), url;
         if (videos) {
@@ -224,7 +159,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
             url = videos.item(0).getAttribute('src');
             return this._parseTimes(url);
         }
-        // No image selected - clean up.
+        // No video selected - clean up.
         this._selectedvideo = null;
         return false;
     },
@@ -254,29 +189,15 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
 		}
 		return properties;
 	},
-    /**
-     * Update the form when the URL was changed. This includes updating the
-     * height, width, and image preview.
-     *
-     * @method _urlChanged
-     * @private
-     */
+
     _urlChanged: function() {
         var input = this._form.one('.' + CSS.INPUTURL);
         if (input.get('value') !== '') {
-            // Load the preview image.
             this._loadPreviewVideo(input.get('value'));
         }
     },
 
-    /**
-     * adds image to page as html (change to creating url and inserting iframe)
-     *
-     * @method _setImage
-     * @param {EventFacade} e
-     * @private
-     */
-    _setImage: function(e) {
+    _setVideo: function(e) {
         //convert to html
         var form = this._form,
             url = form.one('.' + CSS.INPUTURL).get('value'),
@@ -286,7 +207,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
             template,
             host = this.get('host');
         e.preventDefault();
-        // Focus on the editor in preparation for inserting the image.
+        // Focus on the editor in preparation for inserting the video.
         host.focus();
         if (url !== '') {
             if (this._selectedvideo) {
