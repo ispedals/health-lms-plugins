@@ -13,27 +13,27 @@ var CSS = {
     COMPONENTNAME = 'atto_youtube',
     TEMPLATE = '' +
     '<form class="atto_form">' +
-		'<label for="{{elementid}}_{{CSS.INPUTURL}}">{{get_string "enterurl" component}}</label>' +
-		'<input class="fullwidth {{CSS.INPUTURL}}" type="url" id="{{elementid}}_{{CSS.INPUTURL}}" size="32"/>' +
-		'<br/>' +
-		'<div id="{{elementid}}_{{CSS.INPUTTIME}}" class="{{CSS.INPUTTIME}}">' +
-			'<label for="{{elementid}}_{{CSS.INPUTSTART}}">Start Time (mm:ss)</label>' +
-			'<input type="text" class="{{CSS.INPUTSTART}} input-mini" id="{{elementid}}_{{CSS.INPUTSTART}}" size="4"/>' +
-			'<br/>' +
-			'<label for="{{elementid}}_{{CSS.INPUTEND}}">End Time (mm:ss)</label>' +
-			'<input type="text" class="{{CSS.INPUTEND}} input-mini" id="{{elementid}}_{{CSS.INPUTEND}}" size="4"/>' +
-		'</div>' +
-		'<div class="mdl-align">' +
-			'<div class="{{CSS.YOUTUBEPREVIEWBOX}}">' +
-				'<iframe src="#" class="{{CSS.YOUTUBEPREVIEW}}" frameborder="0" style="display: none;"></iframe>' +
-			'</div>' +
-			'<button class="{{CSS.INPUTSUBMIT}}" type="submit">{{get_string "createvideo" component}}</button>' +
-		'</div>' +
+    '<label for="{{elementid}}_{{CSS.INPUTURL}}">{{get_string "enterurl" component}}</label>' +
+    '<input class="fullwidth {{CSS.INPUTURL}}" type="url" id="{{elementid}}_{{CSS.INPUTURL}}" size="32"/>' +
+    '<br/>' +
+    '<div id="{{elementid}}_{{CSS.INPUTTIME}}" class="{{CSS.INPUTTIME}}">' +
+    '<label for="{{elementid}}_{{CSS.INPUTSTART}}">Start Time (mm:ss)</label>' +
+    '<input type="text" class="{{CSS.INPUTSTART}} input-mini" id="{{elementid}}_{{CSS.INPUTSTART}}" size="4"/>' +
+    '<br/>' +
+    '<label for="{{elementid}}_{{CSS.INPUTEND}}">End Time (mm:ss)</label>' +
+    '<input type="text" class="{{CSS.INPUTEND}} input-mini" id="{{elementid}}_{{CSS.INPUTEND}}" size="4"/>' +
+    '</div>' +
+    '<div class="mdl-align">' +
+    '<div class="{{CSS.YOUTUBEPREVIEWBOX}}">' +
+    '<iframe src="#" class="{{CSS.YOUTUBEPREVIEW}}" frameborder="0" style="display: none;"></iframe>' +
+    '</div>' +
+    '<button class="{{CSS.INPUTSUBMIT}}" type="submit">{{get_string "createvideo" component}}</button>' +
+    '</div>' +
     '</form>',
     IMAGETEMPLATE = '' +
-	'<span class="mediaplugin mediaplugin_youtube">' +
-	'<iframe src="{{url}}?start={{start}}{{{amp}}}end={{end}}{{{amp}}}modestbranding=1{{{amp}}}rel=0{{{amp}}}showinfo=0" width="400" height="300" allowfullscreen="1" class="youtuberestrict"></iframe>'+
-	'</span>';
+    '<span class="mediaplugin mediaplugin_youtube">' +
+    '<iframe src="{{url}}?start={{start}}{{{amp}}}end={{end}}{{{amp}}}modestbranding=1{{{amp}}}rel=0{{{amp}}}showinfo=0" width="400" height="300" allowfullscreen="1" class="youtuberestrict"></iframe>' +
+    '</span>';
 Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
     _currentSelection: null,
@@ -43,9 +43,10 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
     _form: null,
 
     _rawVideoProperties: null,
+
     initializer: function() {
         this.addButton({
-			icon: 'e/insert_time',
+            icon: 'e/insert_time',
             callback: this._displayDialogue
         });
         this.editor.delegate('dblclick', this._displayDialogue, 'iframe', this);
@@ -54,7 +55,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
 
     _handleClick: function(e) {
         var video = e.target,
-		selection = this.get('host').getSelectionFromNode(video);
+            selection = this.get('host').getSelectionFromNode(video);
         if (this.get('host').getSelection() !== selection) {
             this.get('host').setSelection(selection);
         }
@@ -80,36 +81,34 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
     },
 
     _loadPreviewVideo: function(url) {
-		var input, currentStart, currentEnd, newurl;
-		this._rawVideoProperties = this._parseTimes(url);
+        var input, currentStart, currentEnd, newurl;
+        this._rawVideoProperties = this._parseTimes(url);
 
-		input = this._form.one('.' + CSS.INPUTSTART);
-		currentStart = input.get('value');
-		if (currentStart === '') {
-			input.set('value', this._secondsToHMS(this._rawVideoProperties.start));
-			currentStart = this._rawVideoProperties.start;
-		}
-		else {
-			currentStart = this._HMSToseconds(currentStart);
-		}
-		input = this._form.one('.' + CSS.INPUTEND);
-		currentEnd = input.get('value');
-		if (currentEnd === '') {
-			input.set('value', this._secondsToHMS(this._rawVideoProperties.end));
-			currentEnd = this._rawVideoProperties.end;
-		}
-		else {
-			currentEnd = this._HMSToseconds(currentEnd);
-		}
-		input = this._form.one('.' + CSS.YOUTUBEPREVIEW);
-		newurl = this._rawVideoProperties.src+'?modestbranding=1&rel=0&showinfo=0&start='+currentStart+'&end='+currentEnd;
-		if (input.src !== newurl){
-			input.setAttribute('src', newurl);
-			input.setStyles({
-				'display': 'inline'
-			});
-			this.getDialogue().centerDialogue();
-		}
+        input = this._form.one('.' + CSS.INPUTSTART);
+        currentStart = input.get('value');
+        if (currentStart === '') {
+            input.set('value', this._secondsToHMS(this._rawVideoProperties.start));
+            currentStart = this._rawVideoProperties.start;
+        } else {
+            currentStart = this._HMSToseconds(currentStart);
+        }
+        input = this._form.one('.' + CSS.INPUTEND);
+        currentEnd = input.get('value');
+        if (currentEnd === '') {
+            input.set('value', this._secondsToHMS(this._rawVideoProperties.end));
+            currentEnd = this._rawVideoProperties.end;
+        } else {
+            currentEnd = this._HMSToseconds(currentEnd);
+        }
+        input = this._form.one('.' + CSS.YOUTUBEPREVIEW);
+        newurl = this._rawVideoProperties.src + '?modestbranding=1&rel=0&showinfo=0&start=' + currentStart + '&end=' + currentEnd;
+        if (input.src !== newurl) {
+            input.setAttribute('src', newurl);
+            input.setStyles({
+                'display': 'inline'
+            });
+            this.getDialogue().centerDialogue();
+        }
 
     },
 
@@ -123,7 +122,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
         this._form = content;
         this._applyVideoProperties(this._form);
         this._form.one('.' + CSS.INPUTURL).on('blur', this._urlChanged, this);
-		this._form.one('.' + CSS.INPUTSTART).on('blur', this._urlChanged, this);
+        this._form.one('.' + CSS.INPUTSTART).on('blur', this._urlChanged, this);
         this._form.one('.' + CSS.INPUTEND).on('blur', this._urlChanged, this, true);
         this._form.one('.' + CSS.INPUTSUBMIT).on('click', this._setVideo, this);
 
@@ -131,7 +130,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
     },
 
     _applyVideoProperties: function(form) {
-      //update form with start and end from url
+        //update form with start and end from url
         var properties = this._getSelectedVideoProperties(),
             preview = form.one('.' + CSS.YOUTUBEPREVIEW);
         if (properties === false) {
@@ -151,7 +150,8 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
     },
 
     _getSelectedVideoProperties: function() {
-        var videos = this.get('host').getSelectedNodes(), url;
+        var videos = this.get('host').getSelectedNodes(),
+            url;
         if (videos) {
             videos = videos.filter('.youtuberestrict');
         }
@@ -163,32 +163,33 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
         this._selectedvideo = null;
         return false;
     },
-	_parseTimes: function(url){
-		var properties = {
+    _parseTimes: function(url) {
+        var properties = {
                 start: null,
                 end: null,
-				src:null
-		}, params, i;
-		if (url.indexOf('youtube.com/embed/')!==-1){
-			properties.src = url.split('?')[0];
-		}
-		if(url.indexOf('?') === -1){ //embed url with no params
-			return properties;
-		}
-		params = url.split('?')[1].split('&');
-		for(i = 0; i < params.length; i++){
-			if(params[i].indexOf('start') === 0){
-				properties.start = params[i].split('=')[1];
-			}
-			if(params[i].indexOf('end') === 0){
-				properties.end = params[i].split('=')[1];
-			}
-			if(params[i].indexOf('v') === 0){
-				properties.src = 'https://www.youtube.com/embed/'+params[i].split('=')[1];
-			}
-		}
-		return properties;
-	},
+                src: null
+            },
+            params, i;
+        if (url.indexOf('youtube.com/embed/') !== -1) {
+            properties.src = url.split('?')[0];
+        }
+        if (url.indexOf('?') === -1) { //embed url with no params
+            return properties;
+        }
+        params = url.split('?')[1].split('&');
+        for (i = 0; i < params.length; i++) {
+            if (params[i].indexOf('start') === 0) {
+                properties.start = params[i].split('=')[1];
+            }
+            if (params[i].indexOf('end') === 0) {
+                properties.end = params[i].split('=')[1];
+            }
+            if (params[i].indexOf('v') === 0) {
+                properties.src = 'https://www.youtube.com/embed/' + params[i].split('=')[1];
+            }
+        }
+        return properties;
+    },
 
     _urlChanged: function() {
         var input = this._form.one('.' + CSS.INPUTURL);
@@ -215,14 +216,14 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
             } else {
                 host.setSelection(this._currentSelection);
             }
-			url = this._parseTimes(url).src;
+            url = this._parseTimes(url).src;
             template = Y.Handlebars.compile(IMAGETEMPLATE);
             imagehtml = template({
                 url: url,
-				start: start,
-				end: end,
-				amp:'&'
-			});
+                start: start,
+                end: end,
+                amp: '&'
+            });
             this.get('host').insertContentAtFocusPoint(imagehtml);
             this.markUpdated();
         }
@@ -230,22 +231,23 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
             focusAfterHide: null
         }).hide();
     },
-	_secondsToHMS: function(seconds){
-		var minutes = Math.floor(seconds/60);
-		seconds -= minutes * 60;
-		if(minutes<10) {
-			minutes = "0" + minutes;
-		}
-		seconds = Math.floor(seconds);
-		if(seconds<10) {
-			seconds = "0" + seconds;
-		}
-		return minutes + ':' + seconds;
-	},
-	_HMSToseconds: function (timestamp) {
-		var times = /(\d+?):(\d\d)/.exec(timestamp),
-		minutes = parseInt(times[1], 10),
-		seconds = parseInt(times[2], 10);
-		return (minutes * 60) + seconds;
-	}
+	
+    _secondsToHMS: function(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        seconds -= minutes * 60;
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        seconds = Math.floor(seconds);
+        if (seconds < 10) {
+            seconds = "0" + seconds;
+        }
+        return minutes + ':' + seconds;
+    },
+    _HMSToseconds: function(timestamp) {
+        var times = /(\d+?):(\d\d)/.exec(timestamp),
+            minutes = parseInt(times[1], 10),
+            seconds = parseInt(times[2], 10);
+        return (minutes * 60) + seconds;
+    }
 });
