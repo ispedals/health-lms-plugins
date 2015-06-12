@@ -256,9 +256,13 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
         return minutes + ':' + seconds;
     },
     _HMSToseconds: function(timestamp) {
-        var times = /(\d+?):(\d\d?)/.exec(timestamp),
-            minutes = parseInt(times[1], 10),
-            seconds = parseInt(times[2], 10);
+        var times, minutes, seconds;
+        times = /(\d+?):(\d\d?)/.exec(timestamp);
+        if (!times) {
+            return null;
+        }
+        minutes = parseInt(times[1], 10);
+        seconds = parseInt(times[2], 10);
         return (minutes * 60) + seconds;
     }
 });
