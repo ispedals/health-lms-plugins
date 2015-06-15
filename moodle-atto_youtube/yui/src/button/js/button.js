@@ -14,6 +14,7 @@ var CSS = {
     },
     COMPONENTNAME = 'atto_youtube',
     TEMPLATE = '' +
+    '<p>{{{get_string "instructions" component}}</p>' +
     '<form class="atto_form">' +
     '<label for="{{elementid}}_{{CSS.INPUTURL}}">{{get_string "enterurl" component}}</label>' +
     '<input class="fullwidth {{CSS.INPUTURL}}" type="url" id="{{elementid}}_{{CSS.INPUTURL}}" size="32"/>' +
