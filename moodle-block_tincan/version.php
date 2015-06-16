@@ -22,7 +22,7 @@
  
 defined('MOODLE_INTERNAL') || die();
  
-$plugin->version   = 2015042403;
+$plugin->version   = 2015042404;
 $plugin->requires  = 2014050800;
 $plugin->component = 'block_tincan';
 $plugin->maturity  = MATURITY_ALPHA;
