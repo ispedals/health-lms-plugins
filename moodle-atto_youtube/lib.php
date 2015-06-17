@@ -7,6 +7,7 @@ function atto_youtube_strings_for_js() {
 		'createvideo',
 		'cropvideo',
 		'enterurl',
+		'instructions',
 	);
 	$PAGE->requires->strings_for_js($strings, 'atto_youtube');
 }

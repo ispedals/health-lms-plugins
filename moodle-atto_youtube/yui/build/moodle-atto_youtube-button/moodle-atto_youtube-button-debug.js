@@ -16,7 +16,7 @@ var CSS = {
     },
     COMPONENTNAME = 'atto_youtube',
     TEMPLATE = '' +
-    '<p>{{{get_string "instructions" component}}</p>' +
+    '<p>{{get_string "instructions" component}}</p>' +
     '<form class="atto_form">' +
     '<label for="{{elementid}}_{{CSS.INPUTURL}}">{{get_string "enterurl" component}}</label>' +
     '<input class="fullwidth {{CSS.INPUTURL}}" type="url" id="{{elementid}}_{{CSS.INPUTURL}}" size="32"/>' +
@@ -55,7 +55,8 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
 
     initializer: function() {
         this.addButton({
-            icon: 'e/insert_time',
+            icon: 'e/youtube',
+			iconComponent: COMPONENTNAME,
             callback: this._displayDialogue
         });
         this.editor.delegate('dblclick', this._displayDialogue, 'iframe', this);
@@ -71,7 +72,7 @@ Y.namespace('M.atto_youtube').Button = Y.Base.create('button', Y.M.editor_atto.E
     },
 
     _displayDialogue: function() {
-        // Store the current selection.
+        // Store the current yselection.
         this._currentSelection = this.get('host').getSelection();
         if (this._currentSelection === false) {
             return;

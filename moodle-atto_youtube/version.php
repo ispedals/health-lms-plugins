@@ -15,6 +15,6 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version = 2014111001; // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version = 2014111004; // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires = 2014110400; // Requires this Moodle version.
 $plugin->component = 'atto_youtube'; // Full name of the plugin (used for diagnostics).
