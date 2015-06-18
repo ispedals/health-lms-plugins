@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>vendor/font-awesome/css/</location>
+        <name>Font Awesome Styles</name>
+        <version>4.2.0</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>vendor/font-awesome/fonts/</location>
+        <name>Font Awesome Fonts</name>
+        <version>4.2.0</version>
+        <license>SIL OFL</license>
+        <licenseversion>1.1</licenseversion>
+    </library>
+    <library>
+        <location>vendor/google/webfonts/opensans/</location>
+        <name>Google Fonts Open Sans</name>
+        <version></version>
+        <license>Apache</license>
+        <licenseversion>2.0</licenseversion>
+    </library>
+</libraries>
