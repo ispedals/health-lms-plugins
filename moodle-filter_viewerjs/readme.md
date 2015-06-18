@@ -7,8 +7,8 @@ This is a Moodle filter that converts links to PDFs, ODPs, ODTs, and ODSs into a
 Note that [ViewerJS](http://viewerjs.org) is licensed AGPLv3. To ease the licensing and distribution requirements of this filter, the ViewerJS library must be installed separately, instead of
 it being bundled with the filter.
 
-1. Download [ViewerJS](https://github.com/kogmbh/ViewerJS/releases) and place the extracted directory at `/lib/viewerjs` in your Moodle installation
-2. Place the files for this filter at `/filter/viewerjs` in your Moodle Installation
+1. Place the files for this filter at `/filter/viewerjs` in your Moodle Installation
+1. Download [ViewerJS](https://github.com/kogmbh/ViewerJS/releases) and place the extracted directory at `/filter/viewerjs/lib/viewerjs` in your Moodle installation
 3. Using a web browser, go to `/admin` to complete installation
 
 ##Usage
