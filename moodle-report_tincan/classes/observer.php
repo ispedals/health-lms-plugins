@@ -58,6 +58,7 @@ class report_tincan_observer {
                 $record->course = $coursename;
                 $record->type = $grade_item->get_name();
                 $record->score = $item->grades[$userid]->str_grade;
+                $record->updated = $event->timecreated;
                 $records[]=$record;
             }
             foreach($grades->outcomes as $grade){
@@ -69,6 +70,7 @@ class report_tincan_observer {
                 $record->course = $coursename;
                 $record->type = $grade->name;
                 $record->score = $grade->grades[$userid]->str_grade;
+                $record->updated = $event->timecreated;
                 $records[]=$record;
             }
         }
